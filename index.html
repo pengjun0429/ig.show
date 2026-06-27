@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Card</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #050508;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* 背景裝飾霓虹光圈，讓限動看起來更有層次 */
+        .bg-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            filter: blur(150px);
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        /* 3D 卡片容器 */
+        .card-container {
+            position: relative;
+            width: 320px;
+            height: 480px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transform-style: preserve-3d;
+            box-shadow: 0 50px 50px rgba(0, 0, 0, 0.5),
+                        inset 0 0 20px rgba(255, 255, 255, 0.05);
+            transition: transform 0.1s ease;
+        }
+
+        /* 卡片上方的發光燈條線條 */
+        .card-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            background: linear-gradient(215deg, transparent, rgba(0, 242, 254, 0.2), transparent);
+            pointer-events: none;
+        }
+
+        /* 卡片內容的 3D 浮出效果 */
+        .card-content {
+            transform: translateZ(50px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #00ff88;
+            margin-right: 8px;
+        }
+
+        .status {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .name {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .title {
+            font-size: 14px;
+            color: #00f2fe;
+            font-family: monospace;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        .tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .tag {
+            font-size: 11px;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 卡片底部資訊 */
+        .card-footer {
+            transform: translateZ(30px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+
+        .github-link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-family: monospace;
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            padding: 8px 16px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+            transition: 0.3s;
+        }
+
+        .github-link:hover {
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="card-container" id="card">
+        <div class="card-content">
+            <div class="status">
+                <span class="status-dot"></span>Online
+            </div>
+            <div>
+                <h1 class="name">陳芃均</h1>
+                <p class="title">// Web Developer & Gamer</p>
+            </div>
+            <div class="tags">
+                <span class="tag">#Frontend</span>
+                <span class="tag">#Python</span>
+                <span class="tag">#UIUX</span>
+            </div>
+        </div>
+        
+        <div class="card-footer">
+            <a href="https://github.com" target="_blank" class="github-link">VIEW GITHUB</a>
+        </div>
+    </div>
+
+    <script>
+        const card = document.getElementById('card');
+        const motionMax = 25; // 最大旋轉角度
+
+        // 監聽滑鼠或手指移動事件
+        function handleMove(e) {
+            const rect = card.getBoundingClientRect();
+            // 取得觸控或滑鼠的座標
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const x = clientX - rect.left - rect.width / 2;
+            const y = clientY - rect.top - rect.height / 2;
+            
+            // 計算旋轉角度
+            const ax = -(y / (rect.height / 2)) * motionMax;
+            const ay = (x / (rect.width / 2)) * motionMax;
+
+            // 帶入 3D 效果
+            card.style.transform = `rotateX(${ax}deg) rotateY(${ay}deg)`;
+        }
+
+        // 恢復原狀
+        function handleReset() {
+            card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        }
+
+        // 電腦滑鼠事件
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('mouseleave', handleReset);
+
+        // 手機觸控事件（發限動用手機點開時的核心效果）
+        card.addEventListener('touchmove', function(e) {
+            handleMove(e);
+            e.preventDefault(); // 防止手機畫面捲動
+        }, { passive: false });
+        
+        card.addEventListener('touchend', handleReset);
+    </script>
+</body>
+</html>
